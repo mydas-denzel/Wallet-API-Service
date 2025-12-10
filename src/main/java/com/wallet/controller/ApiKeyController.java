@@ -11,7 +11,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,18 +25,17 @@ public class ApiKeyController {
     private final ApiKeyService apiKeyService;
 
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<CreateApiKeyResponse>> createApiKey(
-            @AuthenticationPrincipal User user,
-            @Valid @RequestBody CreateApiKeyRequest request) {
+    public CreateApiKeyResponse createApiKey(@RequestBody CreateApiKeyRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        CreateApiKeyResponse response = apiKeyService.createApiKey(user, request);
+        if (auth == null || auth.getPrincipal() == null || !(auth.getPrincipal() instanceof User)) {
+            throw new RuntimeException("No authenticated user found");
+        }
 
-        log.info("API key created for user: {}", user.getEmail());
-
-        return ResponseEntity.ok(ApiResponse.success(
-                "API key created successfully", response
-        ));
+        User user = (User) auth.getPrincipal();
+        return apiKeyService.createApiKey(user, request);
     }
+
 
     @PostMapping("/rollover")
     public ResponseEntity<ApiResponse<CreateApiKeyResponse>> rolloverApiKey(
