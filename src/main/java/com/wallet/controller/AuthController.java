@@ -24,11 +24,9 @@ public class AuthController {
     private final JwtService jwtService;
     private final UserService userService;
 
-    @GetMapping("/google")
-    public ResponseEntity<ApiResponse<String>> googleAuth() {
-        return ResponseEntity.ok(ApiResponse.success(
-                "Use this URL for Google OAuth: /oauth2/authorization/google"
-        ));
+    @GetMapping("/auth/google")
+    public String redirectToGoogle() {
+        return "redirect:/oauth2/authorization/google";
     }
 
     @GetMapping("/google/callback")
