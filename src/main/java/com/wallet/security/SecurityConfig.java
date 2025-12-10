@@ -59,11 +59,12 @@ public class SecurityConfig {
                     )
                     .successHandler(new SimpleUrlAuthenticationSuccessHandler() {
                         @Override
-                        protected void onAuthenticationSuccess(
+                        public void onAuthenticationSuccess(
                                 HttpServletRequest request,
                                 HttpServletResponse response,
                                 org.springframework.security.core.Authentication authentication
                         ) throws java.io.IOException {
+                            // Extract user info from Google
                             var oauthUser = (org.springframework.security.oauth2.core.user.OAuth2User) authentication.getPrincipal();
 
                             String googleId = oauthUser.getAttribute("sub");
@@ -71,9 +72,13 @@ public class SecurityConfig {
                             String name = oauthUser.getAttribute("name");
                             String picture = oauthUser.getAttribute("picture");
 
+                            // Find or create user
                             var user = userService.findOrCreateUser(googleId, email, name, picture);
+
+                            // Generate JWT
                             String token = jwtService.generateToken(user);
 
+                            // Return JSON response
                             response.setContentType("application/json");
                             response.getWriter().write(
                                     "{ \"token\": \"" + token + "\", \"tokenType\": \"Bearer\" }"
@@ -81,10 +86,12 @@ public class SecurityConfig {
                         }
                     })
             )
+            // Temporary session for OAuth2 handshake
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             );
 
+        // JWT & API key filters
         http.addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
