@@ -32,7 +32,9 @@ public class SecurityConfig {
                                 "/wallet/paystack/webhook",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/docs/**"
+                                "/docs/**",
+                                "/oauth2/authorization/google/**",
+                                "/oauth2/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
