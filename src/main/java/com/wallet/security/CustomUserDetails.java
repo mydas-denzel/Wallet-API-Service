@@ -1,6 +1,7 @@
 package com.wallet.security;
 
 import com.wallet.entity.User;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+@Getter
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
@@ -40,7 +42,4 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() { return user.isActive(); }
 
-    public User getUser() {
-        return user;
-    }
 }
