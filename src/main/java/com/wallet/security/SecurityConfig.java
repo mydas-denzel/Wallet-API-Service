@@ -37,72 +37,66 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(
-                            "/auth/**",
-                            "/wallet/paystack/webhook",
-                            "/swagger-ui/**",
-                            "/v3/api-docs/**",
-                            "/docs/**",
-                            "/oauth2/**",
-                            "/error/**",
-                            "/auth/login",
-                            "/auth/google/callback"
-                    ).permitAll()
-                    .anyRequest().authenticated()
-                    .requestMatchers(
-                            "/keys/**",
-                            "/wallet/**",
-                            "/transactions/**"
-                    ).authenticated()   // but NOT via OAuth2
-            )
-            // OAuth2 login with custom callback
-            .oauth2Login(oauth -> oauth
-                    .loginPage("/auth/google")
-                    .redirectionEndpoint(redir -> redir
-                            .baseUri("/auth/google/callback")
-                    )
-                    .successHandler(new SimpleUrlAuthenticationSuccessHandler() {
-                        @Override
-                        public void onAuthenticationSuccess(
-                                HttpServletRequest request,
-                                HttpServletResponse response,
-                                org.springframework.security.core.Authentication authentication
-                        ) throws java.io.IOException {
-                            // Extract user info from Google
-                            var oauthUser = (org.springframework.security.oauth2.core.user.OAuth2User) authentication.getPrincipal();
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(auth -> auth
+                        // Public endpoints first
+                        .requestMatchers(
+                                "/auth/**",
+                                "/wallet/paystack/webhook",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/docs/**",
+                                "/oauth2/**",
+                                "/error/**",
+                                "/favicon",
+                                "/"
+                        ).permitAll()
 
-                            String googleId = oauthUser.getAttribute("sub");
-                            String email = oauthUser.getAttribute("email");
-                            String name = oauthUser.getAttribute("name");
-                            String picture = oauthUser.getAttribute("picture");
+                        // Everything else requires authentication (JWT or API Key)
+                        .requestMatchers(
+                                "/keys/**",
+                                "/wallet/**",
+                                "/transactions/**"
+                        ).authenticated()
 
-                            // Find or create user
-                            var user = userService.findOrCreateUser(googleId, email, name, picture);
+                        // anyRequest last
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/auth/google")
+                        .redirectionEndpoint(redir -> redir.baseUri("/auth/google/callback"))
+                        .successHandler(new SimpleUrlAuthenticationSuccessHandler() {
+                            @Override
+                            public void onAuthenticationSuccess(
+                                    HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    org.springframework.security.core.Authentication authentication
+                            ) throws java.io.IOException {
 
-                            // Generate JWT
-                            String token = jwtService.generateToken(user);
+                                var oauthUser = (org.springframework.security.oauth2.core.user.OAuth2User) authentication.getPrincipal();
 
-                            // Return JSON response
-                            response.setContentType("application/json");
-                            response.getWriter().write(
-                                    "{ \"token\": \"" + token + "\", \"tokenType\": \"Bearer\" }"
-                            );
-                        }
-                    })
-                    .authorizationEndpoint(auth -> auth.baseUri("/auth/google")).redirectionEndpoint(redir -> redir.baseUri("/auth/google/callback"))
-                    .permitAll()
+                                String googleId = oauthUser.getAttribute("sub");
+                                String email = oauthUser.getAttribute("email");
+                                String name = oauthUser.getAttribute("name");
+                                String picture = oauthUser.getAttribute("picture");
 
+                                var user = userService.findOrCreateUser(googleId, email, name, picture);
 
-            )
-            // Temporary session for OAuth2 handshake
-            .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-            );
+                                String token = jwtService.generateToken(user);
 
-        // JWT & API key filters
+                                response.setContentType("application/json");
+                                response.getWriter().write("{ \"token\": \"" + token + "\", \"tokenType\": \"Bearer\" }");
+                            }
+                        })
+                        .authorizationEndpoint(auth -> auth.baseUri("/auth/google"))
+                        .permitAll()
+                );
+
+        // Filters
         http.addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
