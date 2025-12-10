@@ -12,9 +12,8 @@ import java.util.Set;
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
-public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+public class MethodSecurityConfig/* extends GlobalMethodSecurityConfiguration*/{
 
-    @Override
     protected MethodSecurityExpressionHandler createExpressionHandler() {
         DefaultMethodSecurityExpressionHandler expressionHandler =
                 new DefaultMethodSecurityExpressionHandler();
