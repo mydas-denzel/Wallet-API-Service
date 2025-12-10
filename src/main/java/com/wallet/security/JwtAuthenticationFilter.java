@@ -77,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/error")
                 || path.startsWith("/wallet/paystack/webhook")
                 || path.startsWith("/favicon")
-                || path.startsWith("/keys")   // allow API key filter to handle this
+                // || path.startsWith("/keys")   // allow API key filter to handle this
                 || path.equals("/");
     }
 

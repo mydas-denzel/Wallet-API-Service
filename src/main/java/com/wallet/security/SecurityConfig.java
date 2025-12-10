@@ -43,7 +43,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints first
+                        // Public endpoints
                         .requestMatchers(
                                 "/auth/**",
                                 "/wallet/paystack/webhook",
@@ -56,16 +56,16 @@ public class SecurityConfig {
                                 "/"
                         ).permitAll()
 
-                        // Everything else requires authentication (JWT or API Key)
+                        // Protected endpoints
                         .requestMatchers(
                                 "/keys/**",
                                 "/wallet/**",
                                 "/transactions/**"
                         ).authenticated()
 
-                        // anyRequest last
                         .anyRequest().authenticated()
                 )
+                // Google OAuth2 login (let Spring manage /oauth2/authorization/google)
                 .oauth2Login(oauth -> oauth
                         .redirectionEndpoint(redir -> redir.baseUri("/auth/google/callback"))
                         .successHandler(new SimpleUrlAuthenticationSuccessHandler() {
@@ -85,17 +85,15 @@ public class SecurityConfig {
 
                                 var user = userService.findOrCreateUser(googleId, email, name, picture);
 
-                                String token = jwtService.generateToken(user);
+                                String token = jwtService.generateToken(new CustomUserDetails(user));
 
                                 response.setContentType("application/json");
                                 response.getWriter().write("{ \"token\": \"" + token + "\", \"tokenType\": \"Bearer\" }");
                             }
                         })
-                        .authorizationEndpoint(auth -> auth.baseUri("/auth/google"))
-                        .permitAll()
                 );
 
-        // Filters
+        // Add custom filters
         http.addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -31,6 +31,7 @@ public class AuthController {
         response.sendRedirect("/oauth2/authorization/google");
     }
 
+
     @GetMapping("/google/callback")
     public ResponseEntity<ApiResponse<AuthResponse>> googleCallback(
             Authentication authentication) {
@@ -73,7 +74,6 @@ public class AuthController {
         }
     }
 
-/*
     // Alternative: Manual JWT endpoint for testing
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> manualLogin(
@@ -101,6 +101,4 @@ public class AuthController {
                     .body(ApiResponse.error("Invalid credentials"));
         }
     }
-
- */
 }

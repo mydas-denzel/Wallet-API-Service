@@ -17,6 +17,8 @@ spring:
         format_sql: true
     show-sql: true
 
+
+
   security:
     oauth2:
       client:
@@ -24,8 +26,17 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope: profile,email
+            scope:
+              - profile
+              - email
             redirect-uri: "{baseUrl}/auth/google/callback"
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+        ##  token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://openidconnect.googleapis.com/v1/userinfo
+            user-name-attribute: sub
+
 
 
   web:
