@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/wallet_db
-    username: ${POSTGRES_USERNAME:maverick}
-    password: ${POSTGRES_PASSWORD:Mavvy25621111}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
