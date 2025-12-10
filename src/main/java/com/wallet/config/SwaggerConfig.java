@@ -15,7 +15,7 @@ public class SwaggerConfig {
     @Bean
     public OpenApiCustomiser globalHeaderOpenApiCustomiser() {
         return openApi -> {
-            // Add global security scheme
+            // Add JWT security scheme
             openApi.getComponents()
                 .addSecuritySchemes(SECURITY_SCHEME_NAME,
                     new SecurityScheme()
@@ -24,7 +24,7 @@ public class SwaggerConfig {
                         .bearerFormat("JWT")
                 );
 
-            // Apply security scheme globally
+            // Apply security scheme globally to all endpoints
             openApi.addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME));
         };
     }
