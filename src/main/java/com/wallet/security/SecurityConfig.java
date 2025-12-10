@@ -47,9 +47,16 @@ public class SecurityConfig {
                             "/v3/api-docs/**",
                             "/docs/**",
                             "/oauth2/**",
-                            "/error/**"
+                            "/error/**",
+                            "/auth/login",
+                            "/auth/google/callback"
                     ).permitAll()
                     .anyRequest().authenticated()
+                    .requestMatchers(
+                            "/keys/**",
+                            "/wallet/**",
+                            "/transactions/**"
+                    ).authenticated()   // but NOT via OAuth2
             )
             // OAuth2 login with custom callback
             .oauth2Login(oauth -> oauth
@@ -85,6 +92,10 @@ public class SecurityConfig {
                             );
                         }
                     })
+                    .authorizationEndpoint(auth -> auth.baseUri("/auth/google")).redirectionEndpoint(redir -> redir.baseUri("/auth/google/callback"))
+                    .permitAll()
+
+
             )
             // Temporary session for OAuth2 handshake
             .sessionManagement(session -> session

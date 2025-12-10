@@ -63,4 +63,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        String path = request.getServletPath();
+
+        return path.startsWith("/auth")
+                || path.startsWith("/oauth2")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/docs")
+                || path.startsWith("/error")
+                || path.startsWith("/wallet/paystack/webhook")
+                || path.startsWith("/favicon")
+                || path.startsWith("/keys")   // allow API key filter to handle this
+                || path.equals("/");
+    }
+
 }
