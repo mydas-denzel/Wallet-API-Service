@@ -31,33 +31,39 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers(
-                                "/auth/**",
-                                "/wallet/paystack/webhook",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/docs/**",
-                                "/oauth2/authorization/google/**",
-                                "/oauth2/**",
-                                "/error/**"
-                        ).permitAll()
-                        // All other endpoints require authentication
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                // Add filters
-                .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(
+                            "/auth/**",
+                            "/wallet/paystack/webhook",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**",
+                            "/docs/**",
+                            "/oauth2/**",
+                            "/error/**"
+                    ).permitAll()
+                    .anyRequest().authenticated()
+            )
 
-        return http.build();
-    }
+            // ⚠️ Enable OAuth2 login (required for Google login endpoint to exist)
+            .oauth2Login(oauth -> oauth
+                    .loginPage("/oauth2/authorization/google")
+                    .defaultSuccessUrl("/auth/oauth2/success", true)
+            )
+
+            // ⚠️ Allow Spring to create TEMP sessions for OAuth2
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            );
+
+    // Add JWT & APIKEY filters for normal API requests
+    http.addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
+}
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
