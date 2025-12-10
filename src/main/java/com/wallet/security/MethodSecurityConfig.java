@@ -11,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Set;
 
 @Configuration
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
     @Override
