@@ -5,7 +5,6 @@ import com.wallet.dtos.response.AuthResponse;
 import com.wallet.entity.User;
 import com.wallet.security.JwtService;
 import com.wallet.service.UserService;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -27,8 +25,10 @@ public class AuthController {
     private final UserService userService;
 
     @GetMapping("/google")
-    public void redirectToGoogle(HttpServletResponse response) throws IOException {
-        response.sendRedirect("/oauth2/authorization/google");
+    public ResponseEntity<ApiResponse<String>> googleAuth() {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Use this URL for Google OAuth: /oauth2/authorization/google"
+        ));
     }
 
     @GetMapping("/google/callback")
@@ -73,7 +73,6 @@ public class AuthController {
         }
     }
 
-/*
     // Alternative: Manual JWT endpoint for testing
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> manualLogin(
@@ -101,6 +100,4 @@ public class AuthController {
                     .body(ApiResponse.error("Invalid credentials"));
         }
     }
-
- */
 }

@@ -67,6 +67,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
+                        .loginPage("/auth/google")
                         .redirectionEndpoint(redir -> redir.baseUri("/auth/google/callback"))
                         .successHandler(new SimpleUrlAuthenticationSuccessHandler() {
                             @Override
@@ -85,7 +86,7 @@ public class SecurityConfig {
 
                                 var user = userService.findOrCreateUser(googleId, email, name, picture);
 
-                                String token = jwtService.generateToken(user);
+                                String token = jwtService.generateToken(new CustomUserDetails(user));
 
                                 response.setContentType("application/json");
                                 response.getWriter().write("{ \"token\": \"" + token + "\", \"tokenType\": \"Bearer\" }");
