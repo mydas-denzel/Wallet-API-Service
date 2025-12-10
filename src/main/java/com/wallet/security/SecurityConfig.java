@@ -67,7 +67,6 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
-                        .loginPage("/auth/google")
                         .redirectionEndpoint(redir -> redir.baseUri("/auth/google/callback"))
                         .successHandler(new SimpleUrlAuthenticationSuccessHandler() {
                             @Override
