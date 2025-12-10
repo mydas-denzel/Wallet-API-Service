@@ -31,7 +31,8 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/wallet/paystack/webhook",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/docs/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
