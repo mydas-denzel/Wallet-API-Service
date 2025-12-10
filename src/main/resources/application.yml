@@ -27,6 +27,11 @@ spring:
             scope: profile,email
             redirect-uri: "{baseUrl}/auth/google/callback"
 
+
+  web:
+    resources:
+      add-mappings: false
+
 server:
   port: 5000
 
@@ -64,3 +69,4 @@ springdoc:
     path: /docs
     operations-sorter: method
     tags-sorter: alpha
+
