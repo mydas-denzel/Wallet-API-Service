@@ -43,4 +43,7 @@ public class Wallet {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(unique = true)
+    private String walletNumber;
 }

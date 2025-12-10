@@ -1,11 +1,11 @@
 spring:
   application:
-    name: wallet-service
+    name: Wallet Service API
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/wallet_db
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:password}
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/wallet_db
+    username: ${POSTGRES_USERNAME:maverick}
+    password: ${POSTGRES_PASSWORD:Mavvy25621111}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -28,11 +28,11 @@ spring:
             redirect-uri: "{baseUrl}/auth/google/callback"
 
 server:
-  port: 8080
+  port: 5000
 
 app:
   jwt:
-    secret: ${JWT_SECRET:your-jwt-secret-key-change-in-production}
+    secret: ${JWT_SECRET}
     expiration: 86400000 # 24 hours
 
   paystack:

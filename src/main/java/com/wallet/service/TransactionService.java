@@ -9,6 +9,7 @@ import com.wallet.exception.ResourceNotFoundException;
 import com.wallet.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +23,9 @@ import java.util.Optional;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
-    private final UserService userService;
+
+    // @Lazy
+    // private final UserService userService;
 
     @Transactional
     public Transaction createTransaction(User user, TransactionType type,
@@ -63,9 +66,10 @@ public class TransactionService {
         return transactionRepository.findByPaystackReference(paystackReference);
     }
 
-    public User getUserByWalletNumber(String walletNumber) {
-        return userService.findByWalletNumber(walletNumber);
-    }
+//    public User getUserByWalletNumber(String walletNumber) {
+//        return userService.findByWalletNumber(walletNumber);
+//    }
+
 
     public TransactionDto toDto(Transaction transaction) {
         return TransactionDto.builder()

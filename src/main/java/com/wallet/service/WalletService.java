@@ -7,9 +7,11 @@ import com.wallet.entity.Wallet;
 import com.wallet.enums.TransactionStatus;
 import com.wallet.enums.TransactionType;
 import com.wallet.exception.InsufficientBalanceException;
+import com.wallet.exception.ResourceNotFoundException;
 import com.wallet.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +22,10 @@ import java.math.BigDecimal;
 @Slf4j
 public class WalletService {
 
+    @Lazy
     private final WalletRepository walletRepository;
+
+    @Lazy
     private final TransactionService transactionService;
 
     @Transactional
@@ -93,8 +98,10 @@ public class WalletService {
         }
 
         // Find receiver
-        User receiver = transactionService.getUserByWalletNumber(receiverWalletNumber);
-        Wallet receiverWallet = getWalletByUser(receiver);
+        Wallet receiverWallet = walletRepository.findByWalletNumber(receiverWalletNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
+        User receiver = receiverWallet.getUser();
+
 
         // Create transaction records
         Transaction senderTransaction = transactionService.createTransaction(
