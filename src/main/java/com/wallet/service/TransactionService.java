@@ -23,6 +23,7 @@ import java.util.Optional;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
+    private final WalletService walletService;
 
     // @Lazy
     // private final UserService userService;
@@ -69,6 +70,21 @@ public class TransactionService {
 //    public User getUserByWalletNumber(String walletNumber) {
 //        return userService.findByWalletNumber(walletNumber);
 //    }
+
+    @Transactional
+    public void markDepositSuccessful(Transaction transaction, BigDecimal amount) {
+        if (transaction.getStatus() == TransactionStatus.SUCCESS) {
+            log.info("Transaction {} already marked successful", transaction.getReference());
+            return; // idempotency
+        }
+
+        transaction.setStatus(TransactionStatus.SUCCESS);
+        transactionRepository.save(transaction);
+
+        // Credit user's wallet
+        walletService.deposit(transaction.getUser(), amount, transaction.getReference(), transaction.getPaystackReference());
+    }
+
 
 
     public TransactionDto toDto(Transaction transaction) {
