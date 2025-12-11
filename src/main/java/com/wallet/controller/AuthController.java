@@ -73,7 +73,7 @@ public class AuthController {
                     .body(ApiResponse.error("Authentication failed: " + e.getMessage()));
         }
     }
-
+/*
     // Alternative: Manual JWT endpoint for testing
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> manualLogin(
@@ -101,4 +101,6 @@ public class AuthController {
                     .body(ApiResponse.error("Invalid credentials"));
         }
     }
+*/
+
 }

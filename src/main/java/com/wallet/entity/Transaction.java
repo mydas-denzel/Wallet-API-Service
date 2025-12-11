@@ -44,7 +44,7 @@ public class Transaction {
     @Column(nullable = false)
     private TransactionStatus status = TransactionStatus.PENDING;
 
-    @Column(columnDefinition = "jsonb")
+    @Column(columnDefinition = "TEXT")
     private String metadata;
 
     @Column(name = "sender_wallet_number")

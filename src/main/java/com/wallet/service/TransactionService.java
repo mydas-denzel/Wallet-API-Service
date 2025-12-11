@@ -3,13 +3,14 @@ package com.wallet.service;
 import com.wallet.dtos.TransactionDto;
 import com.wallet.entity.Transaction;
 import com.wallet.entity.User;
+import com.wallet.entity.Wallet;
 import com.wallet.enums.TransactionStatus;
 import com.wallet.enums.TransactionType;
 import com.wallet.exception.ResourceNotFoundException;
 import com.wallet.repository.TransactionRepository;
+import com.wallet.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,8 @@ import java.util.Optional;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
+
+    private final WalletRepository walletRepository;
 
     // @Lazy
     // private final UserService userService;
@@ -69,6 +72,35 @@ public class TransactionService {
 //    public User getUserByWalletNumber(String walletNumber) {
 //        return userService.findByWalletNumber(walletNumber);
 //    }
+
+    @Transactional
+    public void markDepositSuccessful(Transaction transaction, BigDecimal amount) {
+        if (transaction.getStatus() == TransactionStatus.SUCCESS) {
+            log.info("Transaction {} already marked successful", transaction.getReference());
+            return; // idempotency
+        }
+
+        // Mark transaction successful first
+        transaction.setStatus(TransactionStatus.SUCCESS);
+        transactionRepository.save(transaction);
+
+        // Credit user's wallet directly to avoid circular dependency
+        User user = transaction.getUser();
+        Wallet wallet = walletRepository.findByUser(user)
+                .orElseGet(() -> walletRepository.save(
+                        Wallet.builder()
+                                .user(user)
+                                .balance(BigDecimal.ZERO)
+                                .currency("NGN")
+                                .isActive(true)
+                                .build()
+                ));
+
+        wallet.setBalance(wallet.getBalance().add(amount));
+        wallet.setLastTransactionAt(java.time.LocalDateTime.now());
+        walletRepository.save(wallet);
+    }
+
 
 
     public TransactionDto toDto(Transaction transaction) {
