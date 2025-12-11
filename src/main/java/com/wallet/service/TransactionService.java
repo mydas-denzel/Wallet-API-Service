@@ -23,6 +23,7 @@ import java.util.Optional;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
+
     @Lazy
     private final WalletService walletService;
 
