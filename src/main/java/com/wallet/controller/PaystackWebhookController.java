@@ -7,7 +7,6 @@ import com.wallet.enums.TransactionStatus;
 import com.wallet.exception.ResourceNotFoundException;
 import com.wallet.service.PaystackService;
 import com.wallet.service.TransactionService;
-import com.wallet.service.WalletService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
